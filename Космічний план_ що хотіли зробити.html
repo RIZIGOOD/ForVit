@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Космічний план: що хотіли зробити</title>
+<style>
+:root{--bg:#070b1f;--card:#111836;--line:#6c7bff;--text:#e8ebff;--mut:#9aa3d6;--acc:#ffcf5c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:radial-gradient(ellipse at 20% 0,#1b2460 0,var(--bg) 55%) fixed;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;overflow-x:hidden}
+.stars{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(1.5px 1.5px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 90px 120px,#cfd6ff,transparent),radial-gradient(1.5px 1.5px at 160px 60px,#fff,transparent),radial-gradient(1px 1px at 60px 180px,#ffe9a8,transparent);background-size:200px 200px;animation:tw 4s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.4}to{opacity:.9}}
+header{position:relative;text-align:center;padding:36px 16px 8px}
+h1{margin:0;font-size:clamp(24px,6vw,42px)}
+header p{color:var(--mut);margin:8px auto 0;max-width:560px;font-size:15px}
+.planet{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;background:radial-gradient(circle at 30% 30%,#ffd98a,#e07a5f 60%,#6b2d5c);animation:fl 6s ease-in-out infinite}
+.chips{position:relative;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 12px}
+.chips button{background:#1a2250;color:var(--text);border:1px solid #3a46a0;border-radius:99px;padding:9px 14px;font-size:14px;cursor:pointer;touch-action:manipulation}
+.chips button.on{background:var(--acc);color:#1a1a2e;border-color:var(--acc)}
+.wrap{position:relative}
+.track{position:relative;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:12px 0 28px;scrollbar-width:none;-ms-overflow-style:none}
+.track::-webkit-scrollbar{display:none;width:0;height:0}
+.rail{position:relative;display:flex;gap:18px;width:max-content;padding:0 max(16px,calc(50vw - 150px))}
+.rail:before{content:"";position:absolute;left:0;right:0;top:22px;height:2px;background:linear-gradient(90deg,transparent,var(--line) 8%,var(--line) 92%,transparent);box-shadow:0 0 12px var(--line)}
+.item{position:relative;width:min(78vw,300px);flex:none;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc);margin-top:15px;z-index:1}
+.stem{width:2px;height:22px;background:linear-gradient(var(--acc),transparent)}
+.card{width:100%;background:var(--card);border:1px solid #2b3685;border-radius:16px;padding:14px 16px;box-shadow:0 0 26px #4452d44d;animation:fl 5s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes fl{0%,100%{transform:translateY(0) rotate(-.6deg)}50%{transform:translateY(-12px) rotate(.6deg)}}
+.date{font-weight:700;color:var(--acc);font-size:14px}
+.who{color:var(--mut);font-size:13px;margin-left:6px}
+.card h3{margin:4px 0;font-size:18px}
+.how{margin:0;color:#c9cffc;font-size:15px}
+.tag{display:inline-block;margin-top:8px;font-size:12px;color:var(--mut);border:1px solid #3a46a0;border-radius:99px;padding:2px 10px}
+.nav{display:none}
+@media (hover:hover) and (min-width:700px){.nav{display:flex;position:absolute;top:50%;width:44px;height:44px;margin-top:-22px;border-radius:50%;border:1px solid #3a46a0;background:#1a2250cc;color:var(--text);font-size:22px;align-items:center;justify-content:center;cursor:pointer;z-index:2}.nav.l{left:12px}.nav.r{right:12px}}
+.hint{position:relative;text-align:center;color:var(--mut);font-size:13px;padding:0 16px 28px}
+@media (prefers-reduced-motion:reduce){.card,.planet,.stars{animation:none}}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<header>
+<div class="planet"></div>
+<h1>🚀 Місії для двох</h1>
+<p>Усе, що ми хотіли зробити: дата, місія і як її виконати. Приїзд очікується з ~16 жовтня.</p>
+</header>
+<div class="chips" id="chips"></div>
+<div class="wrap">
+<button class="nav l" id="prev" aria-label="Назад">‹</button>
+<button class="nav r" id="next" aria-label="Вперед">›</button>
+<div class="track" id="track"><div class="rail" id="list"></div></div>
+</div>
+<div class="hint">Гортай пальцем вбік (або стрілками й коліщатком) · Зібрано з переписки 01.08 – 07.10.2026</div>
+<script>
+var tags={all:"Усі місії",meet:"Зустріч",food:"Їжа",walk:"Прогулянки",life:"Життя",fun:"Ідеї"};
+var D=[
+["01.08","SaShKo","Млинці або шашлик","Домовитись про будній день і купити продукти. 22.08: газ на шашлички він бере, як приїде.","food"],
+["18.08","SaShKo","Мівіна з помідором","Приготувати для Віталінки при зустрічі. Вона записала це маркером. У чек-листі це вічний пункт (03.09, 12.09, 21.09, 23.09).","food"],
+["19.08","SaShKo","Прогулянка в зливу","Вийти гуляти під дощем, не чекаючи гарної погоди.","walk"],
+["25.08","SaShKo","Побачення","Без поспіху, як спільний час. Варіанти: фільм, прогулянка, млинці, поїхати кудись.","meet"],
+["30.08","SaShKo","З'їхати від батьків","Віталінка: «запиши це в ту-ду лист». Знайти житло окремо.","life"],
+["31.08","SaShKo","Подивитись в очі","«Перше в чек-лист». Повторено 06.09: обов'язково при зустрічі.","meet"],
+["06.09","SaShKo","Обійняти, голова на плече","Просто зустрітись і обійнятись. Дивитись в очі не обов'язково одразу.","meet"],
+["09.09","Віталінка","Міньйони на нігтях для Саші","Записано в блокнотик. SaShKo сам їх робити не буде.","fun"],
+["10.09","Віталінка","Малювати фарбою й феном","Вилити фарбу на папір і розвести феном. Записано в ту-ду аркуш.","fun"],
+["12.09","SaShKo","Блінчики зі свічкою","Приготувати разом, коли приїде, і не забути свічку.","food"],
+["14.09","SaShKo","Обійнятись і трохи постояти","Щоб налаштуватись одне на одного. Потім іти гуляти.","meet"],
+["21.09","SaShKo","Розцілувати за весь пропущений час","План на зустріч. Також мівіна з помідорчиком і чай.","meet"],
+["22.09","SaShKo","Прогулянка за ручку","Погуляти, посидіти, поговорити.","walk"],
+["23.09","SaShKo","Серйозна розмова","При зустрічі, «щоб ніхто не зміг втекти». Почати зі стадіону.","meet"],
+["23.09","SaShKo","Квіти","Спитати, які Віталінка любить, і подарувати. Замовити не вдалося.","meet"],
+["24.09","SaShKo","Нічна прогулянка","Сходити вночі. Планів багато, не все встигнемо, вирішувати на місці.","walk"],
+["25.09","SaShKo","Вечірня прогулянка","Поговорити про все або ні про що.","walk"],
+["26.09","SaShKo","Дитячий шопінг","Пункт до ту-ду листа, жартом чи ні.","fun"],
+["29.09","Віталінка","Вішліст","Зробити в нотатках у Телеграмі, можна без посилань, але з фото. SaShKo поки відповів, що бажати нічого.","fun"],
+["29.09","SaShKo","Обійняти на день народження","При зустрічі, нічого більше. Жартом: свистіти, відкривши рота.","meet"],
+["03.10","SaShKo","Шашлик","З'ясувати, чи любить Віталінка шашлик.","food"],
+["05.10","SaShKo","Зал разом","Піти разом, тільки приїде. Точної дати приїзду ще немає: кордон непередбачуваний.","walk"],
+["07.10","SaShKo","Міцно обійняти й поцілувати","Це треба вживу, а не в повідомленнях.","meet"]
+];
+var cur="all",tr=document.getElementById("track");
+function render(){
+ var h="",i=0;
+ D.forEach(function(d){
+  if(cur!=="all"&&d[4]!==cur)return;
+  h+='<div class="item"><div class="dot"></div><div class="stem"></div><div class="card" style="--d:-'+((i++%6)*0.9)+'s"><span class="date">'+d[0]+'.2026</span><span class="who">'+d[1]+'</span><h3>'+d[2]+'</h3><p class="how">'+d[3]+'</p><span class="tag">'+tags[d[4]]+'</span></div></div>';
+ });
+ document.getElementById("list").innerHTML=h;
+ tr.scrollLeft=0;
+ var c="";
+ for(var k in tags)c+='<button class="'+(k===cur?"on":"")+'" data-k="'+k+'">'+tags[k]+'</button>';
+ document.getElementById("chips").innerHTML=c;
+ Array.prototype.forEach.call(document.querySelectorAll(".chips button"),function(b){b.onclick=function(){cur=b.getAttribute("data-k");render();};});
+}
+document.getElementById("prev").onclick=function(){tr.scrollBy({left:-320,behavior:"smooth"});};
+document.getElementById("next").onclick=function(){tr.scrollBy({left:320,behavior:"smooth"});};
+tr.addEventListener("wheel",function(e){if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){tr.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});
+render();
+</script>
+</body>
+</html>
