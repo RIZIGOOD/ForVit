@@ -31,11 +31,32 @@ header p{color:var(--mut);margin:8px auto 0;max-width:560px;font-size:15px}
 .date{font-weight:700;color:var(--acc);font-size:14px}
 .who{color:var(--mut);font-size:13px;margin-left:6px}
 .card h3{margin:4px 0;font-size:18px}
-.how{margin:0;color:#c9cffc;font-size:15px}
-.tag{display:inline-block;margin-top:8px;font-size:12px;color:var(--mut);border:1px solid #3a46a0;border-radius:99px;padding:2px 10px}
+.how{margin:0;color:#c9cffc;font-size:15px;white-space:pre-wrap}
+.foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+.tag{display:inline-block;font-size:12px;color:var(--mut);border:1px solid #3a46a0;border-radius:99px;padding:2px 10px}
+.acts{display:flex;gap:6px}
+.acts button{background:#1a2250;color:var(--text);border:1px solid #3a46a0;border-radius:10px;min-width:40px;height:36px;font-size:15px;cursor:pointer;touch-action:manipulation}
+.acts button.arm{background:#c0392b;border-color:#c0392b;font-size:13px;padding:0 10px}
+.empty{color:var(--mut);text-align:center;padding:40px 16px;width:100vw}
 .nav{display:none}
 @media (hover:hover) and (min-width:700px){.nav{display:flex;position:absolute;top:50%;width:44px;height:44px;margin-top:-22px;border-radius:50%;border:1px solid #3a46a0;background:#1a2250cc;color:var(--text);font-size:22px;align-items:center;justify-content:center;cursor:pointer;z-index:2}.nav.l{left:12px}.nav.r{right:12px}}
-.hint{position:relative;text-align:center;color:var(--mut);font-size:13px;padding:0 16px 28px}
+.hint{position:relative;text-align:center;color:var(--mut);font-size:13px;padding:0 16px 96px}
+.hint a{color:var(--acc);cursor:pointer;text-decoration:underline}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:50%;border:0;background:var(--acc);color:#1a1a2e;font-size:32px;line-height:1;cursor:pointer;box-shadow:0 0 22px #ffcf5c88;z-index:5;touch-action:manipulation}
+.modal{position:fixed;inset:0;background:#02051099;display:none;align-items:flex-end;justify-content:center;z-index:10;padding:0}
+.modal.open{display:flex}
+.sheet{width:100%;max-width:480px;max-height:92%;overflow-y:auto;background:#0e1431;border:1px solid #3a46a0;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+@media (min-width:600px){.modal{align-items:center}.sheet{border-radius:20px}}
+.sheet h2{margin:0 0 12px;font-size:20px}
+.sheet label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+.sheet input,.sheet select,.sheet textarea{width:100%;background:#1a2250;color:var(--text);border:1px solid #3a46a0;border-radius:10px;padding:10px;font:inherit;font-size:16px}
+.sheet textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.btns{display:flex;gap:8px;margin-top:16px}
+.btns button{flex:1;height:44px;border-radius:12px;border:1px solid #3a46a0;background:#1a2250;color:var(--text);font-size:15px;cursor:pointer}
+.btns .ok{background:var(--acc);color:#1a1a2e;border-color:var(--acc);font-weight:700}
+.btns .del{background:#3b1420;border-color:#c0392b;flex:0 0 auto;padding:0 14px}
+.btns .del.arm{background:#c0392b}
 @media (prefers-reduced-motion:reduce){.card,.planet,.stars{animation:none}}
 </style>
 </head>
@@ -52,10 +73,27 @@ header p{color:var(--mut);margin:8px auto 0;max-width:560px;font-size:15px}
 <button class="nav r" id="next" aria-label="Вперед">›</button>
 <div class="track" id="track"><div class="rail" id="list"></div></div>
 </div>
-<div class="hint">Гортай пальцем вбік (або стрілками й коліщатком) · Зібрано з переписки 01.08 – 07.10.2026</div>
+<div class="hint">Гортай пальцем вбік · ✏️ змінити, 🗑 видалити, ＋ додати · Зміни зберігаються в цьому браузері · <a id="reset">скинути до початкового</a></div>
+<button class="fab" id="add" aria-label="Додати місію">+</button>
+
+<div class="modal" id="modal">
+ <div class="sheet">
+  <h2 id="mt">Нова місія</h2>
+  <label for="fT">Назва</label><input id="fT" maxlength="80" placeholder="Що хочемо зробити?">
+  <div class="row">
+   <div><label for="fD">Дата</label><input id="fD" type="date"></div>
+   <div><label for="fW">Хто записав</label><input id="fW" list="whos" maxlength="30"><datalist id="whos"><option value="SaShKo"><option value="Віталінка"></datalist></div>
+  </div>
+  <label for="fG">Категорія</label><select id="fG"></select>
+  <label for="fH">Як виконати</label><textarea id="fH" maxlength="500" placeholder="Деталі, ідеї, нотатки"></textarea>
+  <div class="btns"><button class="del" id="fDel">🗑</button><button id="fNo">Скасувати</button><button class="ok" id="fOk">Зберегти</button></div>
+ </div>
+</div>
+
 <script>
+var KEY="todo-space-v1";
 var tags={all:"Усі місії",meet:"Зустріч",food:"Їжа",walk:"Прогулянки",life:"Життя",fun:"Ідеї"};
-var D=[
+var SEED=[
 ["01.08","SaShKo","Млинці або шашлик","Домовитися про будній день і купити продукти. Як виявилось Шашлик - :) ","food"],
 ["18.08","SaShKo","Мівіна з помідором","Приготувати для Віталінки при зустрічі. Вона записала це маркером. У чек-листі це вічний пункт (03.09, 12.09, 21.09, 23.09).","food"],
 ["19.08","SaShKo","Прогулянка в зливу","Вийти гуляти під дощем, не чекаючи гарної погоди.","walk"],
@@ -81,24 +119,81 @@ var D=[
 ["07.10","SaShKo","Міцно обійняти й поцілувати","Це треба зробити наживо, а не в повідомленнях.","meet"],
 ["08.10","SaShKo","Зробити тірамісу","Приготувати разом при зустрічі.","food"]
 ];
-var cur="all",tr=document.getElementById("track");
-function render(){
- var h="",i=0;
- D.forEach(function(d){
-  if(cur!=="all"&&d[4]!==cur)return;
-  h+='<div class="item"><div class="dot"></div><div class="stem"></div><div class="card" style="--d:-'+((i++%6)*0.9)+'s"><span class="date">'+d[0]+'.2026</span><span class="who">'+d[1]+'</span><h3>'+d[2]+'</h3><p class="how">'+d[3]+'</p><span class="tag">'+tags[d[4]]+'</span></div></div>';
+function seed(){return SEED.map(function(d,i){var p=d[0].split(".");return{id:"s"+i,date:"2026-"+p[1]+"-"+p[0],who:d[1],t:d[2],h:d[3],tag:d[4]};});}
+var items,cur="all",editId=null,armedDel=null;
+function load(){try{var s=localStorage.getItem(KEY);if(s){var a=JSON.parse(s);if(Array.isArray(a))return a;}}catch(e){}return seed();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(items));}catch(e){}}
+items=load();
+var tr=document.getElementById("track");
+function $(i){return document.getElementById(i);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function fmt(d){var p=(d||"").split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:"";}
+function render(reset){
+ var x=tr.scrollLeft,h="",i=0;
+ var list=items.map(function(d,n){return{d:d,n:n};}).sort(function(a,b){return (a.d.date||"9999")<(b.d.date||"9999")?-1:(a.d.date||"9999")>(b.d.date||"9999")?1:a.n-b.n;});
+ list.forEach(function(o){
+  var d=o.d;
+  if(cur!=="all"&&d.tag!==cur)return;
+  var arm=armedDel===d.id;
+  h+='<div class="item"><div class="dot"></div><div class="stem"></div><div class="card" style="--d:-'+((i++%6)*0.9)+'s"><span class="date">'+esc(fmt(d.date))+'</span><span class="who">'+esc(d.who)+'</span><h3>'+esc(d.t)+'</h3><p class="how">'+esc(d.h)+'</p><div class="foot"><span class="tag">'+esc(tags[d.tag]||"")+'</span><span class="acts"><button data-e="'+esc(d.id)+'" aria-label="Редагувати">✏️</button><button data-x="'+esc(d.id)+'" class="'+(arm?"arm":"")+'" aria-label="Видалити">'+(arm?"Точно?":"🗑")+'</button></span></div></div></div>';
  });
- document.getElementById("list").innerHTML=h;
- tr.scrollLeft=0;
+ $("list").innerHTML=h||'<div class="empty">Тут поки порожньо. Натисни ＋, щоб додати місію.</div>';
+ tr.scrollLeft=reset?0:x;
  var c="";
  for(var k in tags)c+='<button class="'+(k===cur?"on":"")+'" data-k="'+k+'">'+tags[k]+'</button>';
- document.getElementById("chips").innerHTML=c;
- Array.prototype.forEach.call(document.querySelectorAll(".chips button"),function(b){b.onclick=function(){cur=b.getAttribute("data-k");render();};});
+ $("chips").innerHTML=c;
 }
-document.getElementById("prev").onclick=function(){tr.scrollBy({left:-320,behavior:"smooth"});};
-document.getElementById("next").onclick=function(){tr.scrollBy({left:320,behavior:"smooth"});};
+$("chips").onclick=function(e){var k=e.target.getAttribute("data-k");if(k){cur=k;armedDel=null;render(true);}};
+$("list").onclick=function(e){
+ var b=e.target.closest("button");if(!b)return;
+ var ed=b.getAttribute("data-e"),dx=b.getAttribute("data-x");
+ if(ed){openForm(ed);return;}
+ if(dx){
+  if(armedDel===dx){items=items.filter(function(d){return d.id!==dx;});armedDel=null;save();render();}
+  else{armedDel=dx;render();setTimeout(function(){if(armedDel===dx){armedDel=null;render();}},3000);}
+ }
+};
+var sel=$("fG"),so="";for(var k in tags)if(k!=="all")so+='<option value="'+k+'">'+tags[k]+'</option>';sel.innerHTML=so;
+var delArm=false;
+function openForm(id){
+ editId=id||null;delArm=false;$("fDel").classList.remove("arm");$("fDel").textContent="🗑";
+ var d=id?items.filter(function(x){return x.id===id;})[0]:null;
+ $("mt").textContent=d?"Редагувати місію":"Нова місія";
+ $("fT").value=d?d.t:"";
+ $("fD").value=d?d.date:new Date().toISOString().slice(0,10);
+ $("fW").value=d?d.who:"SaShKo";
+ $("fG").value=d?d.tag:(cur!=="all"?cur:"meet");
+ $("fH").value=d?d.h:"";
+ $("fDel").style.display=d?"":"none";
+ $("modal").classList.add("open");
+ setTimeout(function(){$("fT").focus();},50);
+}
+function closeForm(){$("modal").classList.remove("open");}
+$("add").onclick=function(){openForm(null);};
+$("fNo").onclick=closeForm;
+$("modal").onclick=function(e){if(e.target===this)closeForm();};
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeForm();});
+$("fOk").onclick=function(){
+ var t=$("fT").value.trim();
+ if(!t){$("fT").focus();return;}
+ var o={date:$("fD").value,who:$("fW").value.trim()||"SaShKo",t:t,h:$("fH").value.trim(),tag:$("fG").value};
+ if(editId){items=items.map(function(d){return d.id===editId?Object.assign({},d,o):d;});}
+ else{o.id="n"+Date.now().toString(36)+Math.floor(Math.random()*1000);items.push(o);}
+ save();closeForm();render();
+};
+$("fDel").onclick=function(){
+ if(!delArm){delArm=true;this.classList.add("arm");this.textContent="Точно видалити?";return;}
+ items=items.filter(function(d){return d.id!==editId;});save();closeForm();render();
+};
+$("reset").onclick=function(){
+ if(this.getAttribute("data-a")){items=seed();save();this.textContent="скинути до початкового";this.removeAttribute("data-a");render(true);}
+ else{this.setAttribute("data-a","1");this.textContent="точно? натисни ще раз";var s=this;setTimeout(function(){s.removeAttribute("data-a");s.textContent="скинути до початкового";},3000);}
+};
+$("prev").onclick=function(){tr.scrollBy({left:-320,behavior:"smooth"});};
+$("next").onclick=function(){tr.scrollBy({left:320,behavior:"smooth"});};
 tr.addEventListener("wheel",function(e){if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){tr.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});
-render();
+render(true);
 </script>
 </body>
 </html>
+
