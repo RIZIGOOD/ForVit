@@ -57,6 +57,7 @@ header p{color:var(--mut);margin:8px auto 0;max-width:560px;font-size:15px}
 .btns .ok{background:var(--acc);color:#1a1a2e;border-color:var(--acc);font-weight:700}
 .btns .del{background:#3b1420;border-color:#c0392b;flex:0 0 auto;padding:0 14px}
 .btns .del.arm{background:#c0392b}
+.music{right:auto;left:max(16px,env(safe-area-inset-left,0px));font-size:26px;background:#1a2250;color:var(--text);border:1px solid #3a46a0;box-shadow:0 0 18px #4452d44d}
 @media (prefers-reduced-motion:reduce){.card,.planet,.stars{animation:none}}
 </style>
 </head>
@@ -75,6 +76,8 @@ header p{color:var(--mut);margin:8px auto 0;max-width:560px;font-size:15px}
 </div>
 <div class="hint">Гортай пальцем вбік · ✏️ змінити, 🗑 видалити, ＋ додати · Зміни зберігаються в цьому браузері (тобто ти можеш щось додати у свій список і це буде як сюрприз для мене, і навпаки :) · <a id="reset">скинути до початкового</a></div>
 <button class="fab" id="add" aria-label="Додати місію">+</button>
+<audio id="bgm" src="music.mp3" loop preload="none"></audio>
+<button class="fab music" id="music" aria-label="Музика">🎵</button>
 
 <div class="modal" id="modal">
  <div class="sheet">
@@ -192,8 +195,13 @@ $("reset").onclick=function(){
 $("prev").onclick=function(){tr.scrollBy({left:-320,behavior:"smooth"});};
 $("next").onclick=function(){tr.scrollBy({left:320,behavior:"smooth"});};
 tr.addEventListener("wheel",function(e){if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){tr.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});
+var bgm=$("bgm"),mb=$("music");
+bgm.volume=0.25;
+mb.onclick=function(){
+ if(bgm.paused){bgm.play().then(function(){mb.textContent="🔊";}).catch(function(){});}
+ else{bgm.pause();mb.textContent="🎵";}
+};
 render(true);
 </script>
 </body>
 </html>
-
